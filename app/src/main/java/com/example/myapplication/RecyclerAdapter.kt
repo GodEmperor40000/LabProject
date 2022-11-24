@@ -19,7 +19,7 @@ class RecyclerAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.textView.text = list[position].toString()
+        holder.textView.text = "${list[position].name} ${list[position].surName}"
         holder.button.setOnClickListener {
             onItemClick(holder.adapterPosition)
 

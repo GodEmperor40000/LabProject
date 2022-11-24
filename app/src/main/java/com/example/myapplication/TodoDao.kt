@@ -18,4 +18,14 @@ interface TodoDao {
 
     @Delete
     fun delete(todo: TodoEntity)
+
+    fun insertSpecial(Name: String, surName: String, birthDay: String, phoneNumber: String): TodoEntity {
+        val todoEntity = TodoEntity()
+        todoEntity.name = Name
+        todoEntity.surName = surName
+        todoEntity.birthDay = birthDay
+        todoEntity.phoneNumber = phoneNumber
+        todoEntity.id = this.insert(todoEntity)
+        return todoEntity
+    }
 }
