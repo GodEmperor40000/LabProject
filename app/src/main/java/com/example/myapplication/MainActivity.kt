@@ -13,6 +13,7 @@ import com.example.db.TodoDatabase
 import com.example.db.TodoEntity
 
 class MainActivity : AppCompatActivity() {
+    private val arr = mutableListOf<TodoEntity>()
     private lateinit var adapter: RecyclerAdapter
 
     companion object {
@@ -23,18 +24,18 @@ class MainActivity : AppCompatActivity() {
     private val todoDatabase by lazy {
         TodoDatabase.getDatabase(this).todoDao()
     }
-
+    val REQUEST_CODE = 1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val arr = mutableListOf<TodoEntity>()
-        selectAll()
+
+        arr.addAll(selectAll())
         val recView = findViewById<RecyclerView>(R.id.recyclerView)
         val button = findViewById<Button>(R.id.button)
-        adapter = RecyclerAdapter(selectAll()) {
-            val intent = Intent(this, BrandNewActivity::class.java)
-            intent.putExtra(EXTRA_KEY, arr[it].name)
-            startActivity(intent)
+        adapter = RecyclerAdapter(arr) {
+            val intent1 = Intent(this, InformationActivity::class.java)
+            intent1.putExtra(EXTRA_KEY, arr[it].id)
+            startActivityForResult(intent1, REQUEST_CODE)
         }
 
         recView.layoutManager = LinearLayoutManager(this)
@@ -42,9 +43,22 @@ class MainActivity : AppCompatActivity() {
 
         button.setOnClickListener{
             val intent = Intent(this, BrandNewActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, REQUEST_CODE)
         }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        println("onActivityResult")
+
+        arr.clear()
+        arr.addAll(selectAll())
+
+        adapter.notifyDataSetChanged()
+
+    }
+
 
     fun insert(Name: String, surName: String, birthDay: String, phoneNumber: String): TodoEntity {
         val todoEntity = TodoEntity()
