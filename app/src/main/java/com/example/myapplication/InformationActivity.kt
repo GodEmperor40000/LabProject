@@ -1,11 +1,13 @@
 package com.example.myapplication
 
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import com.example.db.TodoDatabase
 
 class InformationActivity : AppCompatActivity() {
@@ -18,6 +20,34 @@ class InformationActivity : AppCompatActivity() {
         const val EXTRA_KEY = "EXTRA"
     }
 
+    fun dialogYesOrNo(
+        activity: InformationActivity,
+        title: String,
+        message: String,
+        listener: DialogInterface.OnClickListener
+    ) {
+        val builder = AlertDialog.Builder(activity)
+        builder.setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, id ->
+            dialog.dismiss()
+            listener.onClick(dialog, id)
+        })
+        builder.setNegativeButton("No", null)
+        val alert = builder.create()
+        alert.setTitle(title)
+        alert.setMessage(message)
+        alert.show()
+    }
+
+/* пример использования
+    dialogYesOrNo(
+    this,
+    "Вопрос",
+    "Вы перестали пить коньяк по утрам?",
+    DialogInterface.OnClickListener { dialog, id ->
+        // что делать, если нажали "да"
+    }
+})
+*/
     val REQUEST_CODE = 1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,8 +73,16 @@ class InformationActivity : AppCompatActivity() {
             finish()
         }
         buttonDelete.setOnClickListener{
-            todoDatabase.delete(person)
-            finish()
+            dialogYesOrNo(
+                this,
+                "Delete",
+                "Do you wanna delete this contact",
+                DialogInterface.OnClickListener{ dialog, id ->
+                    todoDatabase.delete(person)
+                    finish()
+                }
+            )
+
         }
         buttonRedact.setOnClickListener {
             val intent1 = Intent(this, redactActivity::class.java)
@@ -57,6 +95,7 @@ class InformationActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         println("onActivityResult")
+        finish()
         val id = intent.getLongExtra(MainActivity.EXTRA_KEY, 1)
         val person = todoDatabase.getById(id)
         val buttonReturn = findViewById<Button>(R.id.button3)

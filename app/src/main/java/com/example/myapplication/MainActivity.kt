@@ -14,8 +14,9 @@ import com.example.db.TodoEntity
 
 class MainActivity : AppCompatActivity() {
     private val arr = mutableListOf<TodoEntity>()
+    private val list = mutableListOf<TodoEntity>()
     private lateinit var adapter: RecyclerAdapter
-
+    private lateinit var searchText: SearchView
     companion object {
         const val EXTRA_KEY = "EXTRA"
     }
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         arr.addAll(selectAll())
         val recView = findViewById<RecyclerView>(R.id.recyclerView)
         val button = findViewById<Button>(R.id.button)
+        searchText = findViewById<SearchView>(R.id.searchText)
         adapter = RecyclerAdapter(arr) {
             val intent1 = Intent(this, InformationActivity::class.java)
             intent1.putExtra(EXTRA_KEY, arr[it].id)
@@ -41,10 +43,33 @@ class MainActivity : AppCompatActivity() {
         recView.layoutManager = LinearLayoutManager(this)
         recView.adapter = adapter
 
-        button.setOnClickListener{
+        button.setOnClickListener {
             val intent = Intent(this, BrandNewActivity::class.java)
             startActivityForResult(intent, REQUEST_CODE)
         }
+
+        searchText.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                filter(newText.toString())
+                return false
+            }
+
+
+        })
+    }
+    fun filter(text: String){
+        if(text != ""){
+            arr.clear()
+            list.addAll(selectAll())
+            arr.add(todoDatabase.all.filter{(it.name+" "+it.surName).contains(text, ignoreCase = true)}[0])
+            adapter.notifyDataSetChanged()
+        }
+
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
