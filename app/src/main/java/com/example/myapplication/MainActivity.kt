@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         if(text != ""){
             arr.clear()
             list.addAll(selectAll())
-            arr.add(todoDatabase.all.filter{(it.name+" "+it.surName).contains(text, ignoreCase = true)}[0])
+            arr.addAll(todoDatabase.all.filter{it.name.contains(text, true) || it.surName.contains(text, true)})
             adapter.notifyDataSetChanged()
         }
 
